@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.Consumer", "RabbitMQ.Consumer\RabbitMQ.Consumer.csproj", "{F5840C13-EF82-44A7-96C3-B6284F57BABE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5840C13-EF82-44A7-96C3-B6284F57BABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5840C13-EF82-44A7-96C3-B6284F57BABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5840C13-EF82-44A7-96C3-B6284F57BABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5840C13-EF82-44A7-96C3-B6284F57BABE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6557D8F-4558-437A-8721-23E872F7289D}
+	EndGlobalSection
+EndGlobal
