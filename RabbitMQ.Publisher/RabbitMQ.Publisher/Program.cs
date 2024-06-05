@@ -11,11 +11,13 @@ using IModel channel=connection.CreateModel();
 
 //Queue(mesajın gönderileceği kuyruk) oluşturma 
 //Bir kuyruk exclusive:true olarak ayarlanıyorsa, o kuyruk o bağlantıya özel oluşturulur ve daha sonra imha edilir.Yani consumer kuyruğa erişemez.
-channel.QueueDeclare(queue: "example-queue", exclusive: false);
+channel.QueueDeclare(queue: "example-queue", exclusive: false,durable:true); //durable:true ile kuyruğu kalıcı yaptım.
 
 //Kuyruğa mesaj gönderme
-//RabbitMQ kuyruğa atacağı mesajları byte türüenden kabul eder. Haliyle gönderilecek mesajları byte türüne dönüştürmemiz gerekir.
+//RabbitMQ kuyruğa atacağı mesajları byte türünden kabul eder. Haliyle gönderilecek mesajları byte türüne dönüştürmemiz gerekir.
+IBasicProperties properties = channel.CreateBasicProperties();
+properties.Persistent = true;
 byte [] message = Encoding.UTF8.GetBytes("Merhaba");
-channel.BasicPublish(exchange:"",routingKey: "example-queue", body:message);
+channel.BasicPublish(exchange:"",routingKey: "example-queue", body:message, basicProperties: properties); //basicProperties: properties ile mesajı kalıcı yaptım 
 
 Console.Read();
