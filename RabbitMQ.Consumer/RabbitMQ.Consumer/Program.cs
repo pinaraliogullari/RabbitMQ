@@ -12,11 +12,12 @@ using IModel channel = connection.CreateModel();
 
 //Queue oluşturma
 //Consumerdaki kuyruk publisherdaki ile birebir aynı yapıda tanımlanmalıdır. 
-channel.QueueDeclare(queue: "example-queue", exclusive: false);
+channel.QueueDeclare(queue: "example-queue", exclusive: false,durable:true);
 
 //Queuedan mesaj okuma
 EventingBasicConsumer consumer = new(channel);
 channel.BasicConsume(queue: "example-queue",autoAck:false,consumer:consumer);
+channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 consumer.Received += (sender, e) =>
 {
 	//kuyruğa gelen mesajın işlendiği yerdir.
