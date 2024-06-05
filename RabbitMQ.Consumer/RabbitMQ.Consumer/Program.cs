@@ -16,13 +16,14 @@ channel.QueueDeclare(queue: "example-queue", exclusive: false);
 
 //Queuedan mesaj okuma
 EventingBasicConsumer consumer = new(channel);
-channel.BasicConsume(queue: "example-queue", false, consumer);
+channel.BasicConsume(queue: "example-queue",autoAck:false,consumer:consumer);
 consumer.Received += (sender, e) =>
 {
 	//kuyruğa gelen mesajın işlendiği yerdir.
 	//e.Body: Kuyruktaki mesajın verisini bütünsel olarak getirecektir.
 	//e.Body.Span veya e.Body.ToArray(): Kuyruktaki mesajın byte verisini getirecektir.
 	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
+	channel.BasicAck(deliveryTag: e.DeliveryTag, multiple: false);
 };
 
 Console.Read();
