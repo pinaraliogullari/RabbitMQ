@@ -9,17 +9,30 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 #region P2P Tasarımı
-string queueName = "example-p2p-queue";
-channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false);
+//string queueName = "example-p2p-queue";
+//channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false);
+
+//EventingBasicConsumer consumer = new(channel);
+//channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
+
+//consumer.Received += (sender, e) =>
+//{
+//	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
+//};
+#endregion
+#region Pub/Sub Tasarımı
+string exchangeName = "example-pub-sub-exchange";
+channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
+
+string queuName = channel.QueueDeclare().QueueName;
+channel.QueueBind(queue: queuName, exchange: exchangeName, routingKey: string.Empty);
 
 EventingBasicConsumer consumer = new(channel);
-channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
-
+channel.BasicConsume(queue: queuName, autoAck: false, consumer: consumer);
 consumer.Received += (sender, e) =>
 {
 	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
 };
 #endregion
-
 
 Console.Read();

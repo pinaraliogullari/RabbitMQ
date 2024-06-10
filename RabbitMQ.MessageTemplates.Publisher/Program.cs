@@ -9,12 +9,25 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 #region P2P Tasarımı
-string queuName = "example-p2p-queue";
-channel.QueueDeclare(queue:queuName,durable:false, exclusive:false,autoDelete:false);
+//string queuName = "example-p2p-queue";
+//channel.QueueDeclare(queue:queuName,durable:false, exclusive:false,autoDelete:false);
 
-byte[] message = Encoding.UTF8.GetBytes("merhaba");
+//byte[] message = Encoding.UTF8.GetBytes("merhaba");
 
-channel.BasicPublish(exchange:string.Empty,routingKey:queuName,body:message);
+//channel.BasicPublish(exchange:string.Empty,routingKey:queuName,body:message);
+
+
+#endregion
+#region Pub/Sub Tasarımı
+
+string exchangeName = "example-pub-sub-exchange";
+channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
+for (int i = 0; i < 100; i++)
+{
+	await Task.Delay(200);
+	byte[] message = Encoding.UTF8.GetBytes($"merhaba {i}");
+	channel.BasicPublish(exchange: exchangeName, routingKey: string.Empty, body: message);
+}
 
 
 #endregion
