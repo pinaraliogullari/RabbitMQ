@@ -20,16 +20,27 @@ using IModel channel = connection.CreateModel();
 #endregion
 #region Pub/Sub Tasarımı
 
-string exchangeName = "example-pub-sub-exchange";
-channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
+//string exchangeName = "example-pub-sub-exchange";
+//channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
+//for (int i = 0; i < 100; i++)
+//{
+//	await Task.Delay(200);
+//	byte[] message = Encoding.UTF8.GetBytes($"merhaba {i}");
+//	channel.BasicPublish(exchange: exchangeName, routingKey: string.Empty, body: message);
+//}
+
+
+#endregion
+#region Work Queue Tasarımı
+string queueName = "example-work-queue";
+channel.QueueDeclare(queue: queueName, exclusive: false, durable: false, autoDelete: false);
+
 for (int i = 0; i < 100; i++)
 {
 	await Task.Delay(200);
-	byte[] message = Encoding.UTF8.GetBytes($"merhaba {i}");
-	channel.BasicPublish(exchange: exchangeName, routingKey: string.Empty, body: message);
+	byte[] message= Encoding.UTF8.GetBytes($"Merhaba {i}");
+	channel.BasicPublish(exchange:string.Empty,routingKey:queueName,body:message);
 }
-
-
 #endregion
 
 Console.Read();

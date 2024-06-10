@@ -21,18 +21,31 @@ using IModel channel = connection.CreateModel();
 //};
 #endregion
 #region Pub/Sub Tasarımı
-string exchangeName = "example-pub-sub-exchange";
-channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
+//string exchangeName = "example-pub-sub-exchange";
+//channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
 
-string queuName = channel.QueueDeclare().QueueName;
-channel.QueueBind(queue: queuName, exchange: exchangeName, routingKey: string.Empty);
+//string queuName = channel.QueueDeclare().QueueName;
+//channel.QueueBind(queue: queuName, exchange: exchangeName, routingKey: string.Empty);
+
+//EventingBasicConsumer consumer = new(channel);
+//channel.BasicConsume(queue: queuName, autoAck: false, consumer: consumer);
+//consumer.Received += (sender, e) =>
+//{
+//	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
+//};
+#endregion
+#region Work Queue Tasarımı
+string queueName = "example-work-queue";
+channel.QueueDeclare(queue: queueName, exclusive: false, durable: false, autoDelete: false);
 
 EventingBasicConsumer consumer = new(channel);
-channel.BasicConsume(queue: queuName, autoAck: false, consumer: consumer);
+channel.BasicConsume(queue:queueName,autoAck:true,consumer:consumer);
+//tüm consumerlar aynı iş yüküne ve görev dağılımına sahip olsun diye aşağıdaki konfigürasyon;
+channel.BasicQos(prefetchSize: 1, prefetchCount: 0, global: false);
+
 consumer.Received += (sender, e) =>
 {
 	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
 };
 #endregion
-
 Console.Read();
