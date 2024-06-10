@@ -35,17 +35,36 @@ using IModel channel = connection.CreateModel();
 //};
 #endregion
 #region Work Queue Tasarımı
-string queueName = "example-work-queue";
-channel.QueueDeclare(queue: queueName, exclusive: false, durable: false, autoDelete: false);
+//string queueName = "example-work-queue";
+//channel.QueueDeclare(queue: queueName, exclusive: false, durable: false, autoDelete: false);
+
+//EventingBasicConsumer consumer = new(channel);
+//channel.BasicConsume(queue:queueName,autoAck:true,consumer:consumer);
+////tüm consumerlar aynı iş yüküne ve görev dağılımına sahip olsun diye aşağıdaki konfigürasyon;
+//channel.BasicQos(prefetchSize: 1, prefetchCount: 0, global: false);
+
+//consumer.Received += (sender, e) =>
+//{
+//	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
+//};
+#endregion
+#region Request/Response Tasarımı
+string requestQueueName = "example-request-response-queue";
+channel.QueueDeclare(queue: requestQueueName, durable: false, exclusive: false, autoDelete: false);
 
 EventingBasicConsumer consumer = new(channel);
-channel.BasicConsume(queue:queueName,autoAck:true,consumer:consumer);
-//tüm consumerlar aynı iş yüküne ve görev dağılımına sahip olsun diye aşağıdaki konfigürasyon;
-channel.BasicQos(prefetchSize: 1, prefetchCount: 0, global: false);
+channel.BasicConsume(queue:requestQueueName,autoAck:true,consumer:consumer);
 
 consumer.Received += (sender, e) =>
 {
-	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
+	string message=Encoding.UTF8.GetString(e.Body.Span);
+	Console.WriteLine(message);
+	//......
+	byte[] responseMessage= Encoding.UTF8.GetBytes($"İşlem tamamlandı: {message}");
+
+	IBasicProperties properties=channel.CreateBasicProperties();
+	properties.CorrelationId= e.BasicProperties.CorrelationId;
+	channel.BasicPublish(exchange:string.Empty,routingKey:e.BasicProperties.ReplyTo,basicProperties:properties,body:responseMessage);
 };
 #endregion
 Console.Read();

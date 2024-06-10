@@ -1,5 +1,6 @@
 ﻿
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System.Text;
 
 ConnectionFactory factory = new();
@@ -32,15 +33,47 @@ using IModel channel = connection.CreateModel();
 
 #endregion
 #region Work Queue Tasarımı
-string queueName = "example-work-queue";
-channel.QueueDeclare(queue: queueName, exclusive: false, durable: false, autoDelete: false);
+//string queueName = "example-work-queue";
+//channel.QueueDeclare(queue: queueName, exclusive: false, durable: false, autoDelete: false);
 
-for (int i = 0; i < 100; i++)
+//for (int i = 0; i < 100; i++)
+//{
+//	await Task.Delay(200);
+//	byte[] message= Encoding.UTF8.GetBytes($"Merhaba {i}");
+//	channel.BasicPublish(exchange:string.Empty,routingKey:queueName,body:message);
+//}
+#endregion
+#region Request/Response Tasarımı
+string requestQueueName = "example-request-response-queue";
+channel.QueueDeclare(queue: requestQueueName, durable: false, exclusive: false, autoDelete: false);
+
+string replyQueueName = channel.QueueDeclare().QueueName; //manuel isim de verebilirdim.
+
+string correlationId=Guid.NewGuid().ToString();
+
+#region Request Mesajını Oluşturma ve Gönderme 
+IBasicProperties properties= channel.CreateBasicProperties();
+properties.CorrelationId = correlationId;
+properties.ReplyTo = replyQueueName;
+
+for (int i = 0; i < 10; i++)
 {
 	await Task.Delay(200);
-	byte[] message= Encoding.UTF8.GetBytes($"Merhaba {i}");
-	channel.BasicPublish(exchange:string.Empty,routingKey:queueName,body:message);
+	byte[] message = Encoding.UTF8.GetBytes($"Merhaba {i}");
+	channel.BasicPublish(exchange:string.Empty,routingKey:requestQueueName, body:message,basicProperties:properties);
 }
+#endregion
+#region Response Kuyruğu Dinleme
+EventingBasicConsumer consumer = new(channel);
+channel.BasicConsume(queue: replyQueueName, autoAck: true, consumer: consumer);
+consumer.Received += (sender, e) =>
+{
+	if (e.BasicProperties.CorrelationId == correlationId)
+		//.......
+		Console.WriteLine($"Response: {Encoding.UTF8.GetString(e.Body.Span)}");
+};
+#endregion
+
 #endregion
 
 Console.Read();
