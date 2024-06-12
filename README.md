@@ -7,4 +7,5 @@
 - Fanout Exchange
 - Topic Exchange
 - Header Exchange
+- Mass Transit
     
